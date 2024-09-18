@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package onlineshopping;
+
+service OnlineShoppingService {
+    rpc AddProduct (Product) returns (ProductCode) {}
+    rpc CreateUsers (stream User) returns (OperationStatus) {}
+    rpc UpdateProduct (Product) returns (OperationStatus) {}
+    rpc RemoveProduct (ProductCode) returns (ProductList) {}
+    rpc ListAvailableProducts (Empty) returns (ProductList) {}
+    
+    rpc SearchProduct (ProductCode) returns (Product) {}
+    rpc AddToCart (CartItem) returns (OperationStatus) {}
+    rpc PlaceOrder (UserId) returns (OrderStatus) {}
+}
+
+message Empty {}
+
+message Product {
+    string name = 1;
+    string description = 2;
+    float price = 3;
+    int32 stock_quantity = 4;
+    string sku = 5;
+    ProductStatus status = 6;
+}
+
+enum ProductStatus {
+    AVAILABLE = 0;
+    OUT_OF_STOCK = 1;
+}
+
+message ProductCode {
+    string sku = 1;
+}
+
+message User {
+    string user_id = 1;
+    UserType type = 2;
+    string name = 3;
+    string email = 4;
+}
+
+enum UserType {
+    CUSTOMER = 0;
+    ADMIN = 1;
+}
+
+message OperationStatus {
+    bool success = 1;
+    string message = 2;
+}
+
+message ProductList {
+    repeated Product products = 1;
+}
+
+message CartItem {
+    string user_id = 1;
+    string sku = 2;
+    int32 quantity = 3;
+}
+
+message UserId {
+    string user_id = 1;
+}
+
+message OrderStatus {
+    string order_id = 1;
+    string status = 2;
+    repeated Product ordered_items = 3; // List of ordered products
+    float total_price = 4; // Total order price
+}

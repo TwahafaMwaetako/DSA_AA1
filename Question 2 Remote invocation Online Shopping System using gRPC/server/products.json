@@ -1,0 +1,20 @@
+{
+    "products": [
+        {
+            "name": "Laptop",
+            "description": "A powerful laptop",
+            "price": 1500.99,
+            "stock_quantity": 10,
+            "sku": "LAP123",
+            "status": "AVAILABLE"
+        },
+        {
+            "name": "Smartphone",
+            "description": "A high-end smartphone",
+            "price": 999.99,
+            "stock_quantity": 20,
+            "sku": "PHN456",
+            "status": "AVAILABLE"
+        }
+    ]
+}
