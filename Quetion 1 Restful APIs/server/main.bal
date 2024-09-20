@@ -17,7 +17,49 @@ type Course record {
     string nqfLevel;
 };
 
-map<Programme> programmes = {};
+// Initialize the map with some default programmes and courses.
+map<Programme> programmes = {
+    "CS101": {
+        programmeCode: "CS101",
+        nqfLevel: "7",
+        faculty: "Faculty of Science",
+        department: "Department of Computer Science",
+        qualificationTitle: "Bachelor of Science in Computer Science",
+        registrationDate: "2019-09-01T00:00:00Z",
+        courses: [
+            {
+                name: "Data Structures and Algorithms",
+                code: "CS201",
+                nqfLevel: "7"
+            },
+            {
+                name: "Operating Systems",
+                code: "CS202",
+                nqfLevel: "7"
+            }
+        ]
+    },
+    "ME102": {
+        programmeCode: "ME102",
+        nqfLevel: "8",
+        faculty: "Faculty of Engineering",
+        department: "Department of Mechanical Engineering",
+        qualificationTitle: "Bachelor of Science in Mechanical Engineering",
+        registrationDate: "2018-09-01T00:00:00Z",
+        courses: [
+            {
+                name: "Thermodynamics",
+                code: "ME301",
+                nqfLevel: "8"
+            },
+            {
+                name: "Fluid Mechanics",
+                code: "ME302",
+                nqfLevel: "8"
+            }
+        ]
+    }
+};
 
 service /programmes on new http:Listener(8080) {
 

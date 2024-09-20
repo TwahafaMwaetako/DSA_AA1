@@ -20,7 +20,9 @@ type Course record {
 public function main() returns error? {
     http:Client programmeClient = check new ("http://localhost:8080");
 
+    
     while (true) {
+        // Display the menu options to the user
         io:println("\nProgramme Management System");
         io:println("1. Add a new programme");
         io:println("2. Retrieve all programmes");
@@ -32,13 +34,24 @@ public function main() returns error? {
         io:println("8. Exit");
         io:println("Enter your choice (1-8):");
 
+        // Read the user's choice
         string choice = io:readln();
 
         match choice {
             "1" => {
-                Programme newProgramme = check inputProgramme();
-                Programme addedProgramme = check programmeClient->/programmes.post(newProgramme);
-                io:println("Added programme: ", addedProgramme);
+                // Add a new programme
+                Programme|error newProgramme = inputProgramme();
+                if (newProgramme is Programme) {
+                    // Send a POST request
+                    Programme|error response = programmeClient->/programmes.post(newProgramme);
+                    if (response is error) {
+                        io:println("Error adding programme: ", response.message());
+                    } else {
+                        io:println("Programme added successfully: ", response);
+                    }
+                } else {
+                    io:println("Invalid input for programme details. Please try again.");
+                }
             }
             "2" => {
                 Programme[] allProgrammes = check programmeClient->/programmes;
