@@ -20,7 +20,9 @@ type Course record {
 public function main() returns error? {
     http:Client programmeClient = check new ("http://localhost:8080");
 
+    
     while (true) {
+        // Display the menu options to the user
         io:println("\nProgramme Management System");
         io:println("1. Add a new programme");
         io:println("2. Retrieve all programmes");
@@ -32,13 +34,24 @@ public function main() returns error? {
         io:println("8. Exit");
         io:println("Enter your choice (1-8):");
 
+        // Read the user's choice
         string choice = io:readln();
 
         match choice {
             "1" => {
-                Programme newProgramme = check inputProgramme();
-                Programme addedProgramme = check programmeClient->/programmes.post(newProgramme);
-                io:println("Added programme: ", addedProgramme);
+                // Add a new programme
+                Programme|error newProgramme = inputProgramme();
+                if (newProgramme is Programme) {
+                    // Send a POST request
+                    Programme|error response = programmeClient->/programmes.post(newProgramme);
+                    if (response is error) {
+                        io:println("Error adding programme: ", response.message());
+                    } else {
+                        io:println("Programme added successfully: ", response);
+                    }
+                } else {
+                    io:println("Invalid input for programme details. Please try again.");
+                }
             }
             "2" => {
                 Programme[] allProgrammes = check programmeClient->/programmes;
@@ -47,16 +60,57 @@ public function main() returns error? {
             "3" => {
                 io:println("Enter programme code to update:");
                 string programmeCode = io:readln();
-                Programme updatedProgramme = check inputProgramme();
-                Programme result = check programmeClient->/programmes/[programmeCode].put(updatedProgramme);
-                io:println("Updated programme: ", result);
+
+                // Check if the programme exists
+                Programme|error checkResult = programmeClient->/programmes/[programmeCode];
+                if checkResult is http:ClientRequestError {
+                    io:println("HTTP error occurred: ", checkResult.message());
+                    io:println("Status code: ", checkResult.detail().statusCode);
+                    io:println("Error details: ", checkResult.detail());
+                    continue;
+                } else if checkResult is error {
+                    io:println("Programme does not exist, Please try again ");
+                    continue;
+                }
+
+                // If we reach here, the programme exists, so proceed with update
+                Programme|error updatedProgramme = inputProgramme();
+                if updatedProgramme is Programme {
+                    Programme|error result = programmeClient->/programmes/[programmeCode].put(updatedProgramme);
+                    if result is error {
+                        io:println("Error updating programme: ", result.message());
+                        io:println("Error details: ", result.detail());
+                    } else {
+                        io:println("Updated programme: ", result);
+                    }
+                } else {
+                    io:println("Invalid input for programme details. Please try again.");
+                }
             }
             "4" => {
                 io:println("Enter programme code to retrieve:");
                 string programmeCode = io:readln();
-                Programme retrievedProgramme = check programmeClient->/programmes/[programmeCode];
-                io:println("Retrieved programme: ", retrievedProgramme);
+                
+                // Log the request
+                io:println("Sending request to retrieve programme with code: ", programmeCode);
+
+                Programme|error retrievedProgramme = programmeClient->/programmes/[programmeCode];
+                
+                // Check the response
+                if retrievedProgramme is error {
+                    if (retrievedProgramme is http:ClientRequestError) {
+                        io:println("HTTP error occurred while retrieving programme: ", retrievedProgramme.message());
+                        io:println("Status code: ", retrievedProgramme.detail().statusCode);
+                        io:println("Error details: ", retrievedProgramme.detail());
+                    } else {
+                        io:println("Programme does not exist: ", programmeCode);
+                        io:println("Error message: ", retrievedProgramme.message());
+                    }
+                } else {
+                    io:println("Retrieved programme: ", retrievedProgramme);
+                }
             }
+
             "5" => {
                 io:println("Enter programme code to delete:");
                 string programmeCode = io:readln();
