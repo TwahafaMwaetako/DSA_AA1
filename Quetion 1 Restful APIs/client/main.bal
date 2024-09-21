@@ -90,9 +90,27 @@ public function main() returns error? {
             "4" => {
                 io:println("Enter programme code to retrieve:");
                 string programmeCode = io:readln();
-                Programme retrievedProgramme = check programmeClient->/programmes/[programmeCode];
-                io:println("Retrieved programme: ", retrievedProgramme);
+                
+                // Log the request
+                io:println("Sending request to retrieve programme with code: ", programmeCode);
+
+                Programme|error retrievedProgramme = programmeClient->/programmes/[programmeCode];
+                
+                // Check the response
+                if retrievedProgramme is error {
+                    if (retrievedProgramme is http:ClientRequestError) {
+                        io:println("HTTP error occurred while retrieving programme: ", retrievedProgramme.message());
+                        io:println("Status code: ", retrievedProgramme.detail().statusCode);
+                        io:println("Error details: ", retrievedProgramme.detail());
+                    } else {
+                        io:println("Programme does not exist: ", programmeCode);
+                        io:println("Error message: ", retrievedProgramme.message());
+                    }
+                } else {
+                    io:println("Retrieved programme: ", retrievedProgramme);
+                }
             }
+
             "5" => {
                 io:println("Enter programme code to delete:");
                 string programmeCode = io:readln();
