@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/time;
+import ballerina/io;
 
 type Programme record {
     readonly string programmeCode;
@@ -90,9 +91,12 @@ service /programmes on new http:Listener(8080) {
     }
 
     resource function get [string programmeCode]() returns Programme|error {
+        io:println("Received GET request for programme code: ", programmeCode);
         if (!programmes.hasKey(programmeCode)) {
+            io:println("Programme not found: ", programmeCode);
             return error("Programme not found");
         }
+        io:println("Returning programme: ", programmeCode);
         return programmes.get(programmeCode);
     }
 

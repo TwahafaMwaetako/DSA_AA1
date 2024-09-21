@@ -60,9 +60,32 @@ public function main() returns error? {
             "3" => {
                 io:println("Enter programme code to update:");
                 string programmeCode = io:readln();
-                Programme updatedProgramme = check inputProgramme();
-                Programme result = check programmeClient->/programmes/[programmeCode].put(updatedProgramme);
-                io:println("Updated programme: ", result);
+
+                // Check if the programme exists
+                Programme|error checkResult = programmeClient->/programmes/[programmeCode];
+                if checkResult is http:ClientRequestError {
+                    io:println("HTTP error occurred: ", checkResult.message());
+                    io:println("Status code: ", checkResult.detail().statusCode);
+                    io:println("Error details: ", checkResult.detail());
+                    continue;
+                } else if checkResult is error {
+                    io:println("Programme does not exist, Please try again ");
+                    continue;
+                }
+
+                // If we reach here, the programme exists, so proceed with update
+                Programme|error updatedProgramme = inputProgramme();
+                if updatedProgramme is Programme {
+                    Programme|error result = programmeClient->/programmes/[programmeCode].put(updatedProgramme);
+                    if result is error {
+                        io:println("Error updating programme: ", result.message());
+                        io:println("Error details: ", result.detail());
+                    } else {
+                        io:println("Updated programme: ", result);
+                    }
+                } else {
+                    io:println("Invalid input for programme details. Please try again.");
+                }
             }
             "4" => {
                 io:println("Enter programme code to retrieve:");
