@@ -1,73 +1,63 @@
 syntax = "proto3";
 
-package onlineshopping;
-
-service OnlineShoppingService {
-    rpc AddProduct (Product) returns (ProductCode) {}
-    rpc CreateUsers (stream User) returns (OperationStatus) {}
-    rpc UpdateProduct (Product) returns (OperationStatus) {}
-    rpc RemoveProduct (ProductCode) returns (ProductList) {}
-    rpc ListAvailableProducts (Empty) returns (ProductList) {}
-    
-    rpc SearchProduct (ProductCode) returns (Product) {}
-    rpc AddToCart (CartItem) returns (OperationStatus) {}
-    rpc PlaceOrder (UserId) returns (OrderStatus) {}
+service ShoppingService {
+    rpc AddProduct(Product) returns (ProductResponse);
+    rpc CreateUsers(stream User) returns (CreateUsersResponse);
+    rpc UpdateProduct(Product) returns (ProductResponse);
+    rpc RemoveProduct(ProductRequest) returns (ProductListResponse);
+    rpc ListAvailableProducts(Empty) returns (ProductListResponse);
+    rpc SearchProduct(ProductRequest) returns (ProductResponse);
+    rpc AddToCart(AddToCartRequest) returns (CartResponse);
+    rpc PlaceOrder(OrderRequest) returns (OrderResponse);
 }
-
-message Empty {}
 
 message Product {
     string name = 1;
     string description = 2;
-    float price = 3;
+    double price = 3;
     int32 stock_quantity = 4;
     string sku = 5;
-    ProductStatus status = 6;
+    string status = 6;
 }
 
-enum ProductStatus {
-    AVAILABLE = 0;
-    OUT_OF_STOCK = 1;
-}
-
-message ProductCode {
+message ProductRequest {
     string sku = 1;
 }
 
-message User {
-    string user_id = 1;
-    UserType type = 2;
-    string name = 3;
-    string email = 4;
+message ProductResponse {
+    string message = 1;
+    Product product = 2;
 }
 
-enum UserType {
-    CUSTOMER = 0;
-    ADMIN = 1;
-}
-
-message OperationStatus {
-    bool success = 1;
-    string message = 2;
-}
-
-message ProductList {
+message ProductListResponse {
     repeated Product products = 1;
 }
 
-message CartItem {
+message User {
+    string id = 1;
+    string role = 2; // "customer" or "admin"
+}
+
+message CreateUsersResponse {
+    string message = 1;
+}
+
+message AddToCartRequest {
     string user_id = 1;
     string sku = 2;
-    int32 quantity = 3;
 }
 
-message UserId {
+message CartResponse {
+    string message = 1;
+}
+
+message OrderRequest {
     string user_id = 1;
 }
 
-message OrderStatus {
-    string order_id = 1;
-    string status = 2;
-    repeated Product ordered_items = 3; // List of ordered products
-    float total_price = 4; // Total order price
+message OrderResponse {
+    string message = 1;
+    repeated Product products = 2;
 }
+
+message Empty {}
