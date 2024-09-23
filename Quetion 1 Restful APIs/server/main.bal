@@ -26,7 +26,7 @@ map<Programme> programmes = {
         faculty: "Faculty of Science",
         department: "Department of Computer Science",
         qualificationTitle: "Bachelor of Science in Computer Science",
-        registrationDate: "2019-09-01T00:00:00Z",
+        registrationDate: "2021-09-01T00:00:00Z",
         courses: [
             {
                 name: "Data Structures and Algorithms",
@@ -102,23 +102,31 @@ service /programmes on new http:Listener(8080) {
 
     resource function delete [string programmeCode]() returns string|error {
         if (!programmes.hasKey(programmeCode)) {
-            return error("Programme not found");
+            return error("Programme does not exist: " + programmeCode);
         }
         _ = programmes.remove(programmeCode);
         return "Programme deleted successfully";
     }
 
+
     resource function get review() returns Programme[] {
         time:Civil currentTime = time:utcToCivil(time:utcNow());
+        io:println("Current date: ", currentTime);
+        
         return programmes.toArray().filter(function(Programme p) returns boolean {
             time:Civil|error registrationDate = time:civilFromString(p.registrationDate);
             if (registrationDate is error) {
                 return false;
             }
+
             int yearsDiff = currentTime.year - registrationDate.year;
+            io:println("Programme: ", p.programmeCode, ", Registration Date: ", registrationDate, ", Years Difference: ", yearsDiff);
+
+            // Check if the programme is due for review
             if (yearsDiff > 5) {
                 return true;
             } else if (yearsDiff == 5) {
+                // If it's exactly 5 years, check month and day to see if it's due for review
                 if (currentTime.month > registrationDate.month) {
                     return true;
                 } else if (currentTime.month == registrationDate.month) {
