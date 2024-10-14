@@ -1,0 +1,41 @@
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+  logistics-service:
+    build: ./logistics-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - mongodb
+  standard-delivery-service:
+    build: ./standard-delivery-service
+    depends_on:
+      - kafka
+      - mongodb
+  express-delivery-service:
+    build: ./express-delivery-service
+    depends_on:
+      - kafka
+      - mongodb
+  international-delivery-service:
+    build: ./international-delivery-service
+    depends_on:
+      - kafka
+      - mongodb
