@@ -71,8 +71,10 @@ function processStandardDelivery(CustomerRequest request, mongodb:Client mongoCl
 }
 
 function calculateEstimatedDeliveryTime(string pickupTime) returns string {
-    
-    return pickupTime; 
+    // Simplified logic: assume delivery takes 24 hours
+    // In a real-world scenario, this would involve more complex calculations
+    return pickupTime; // Placeholder
+}
 
 function storeDeliverySchedule(DeliveryConfirmation confirmation, mongodb:Client mongoClient) returns error? {
     mongodb:DatabaseClient db = check mongoClient->getDatabase("logistics_db");
