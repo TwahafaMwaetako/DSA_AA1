@@ -1,41 +1,39 @@
-version: '3'
+version: '3.8'
+
 services:
-  zookeeper:
-    image: wurstmeister/zookeeper
+  logistics_service:
+    build: ./logistics_service
+    depends_on:
+      - kafka
     ports:
-      - "2181:2181"
+      - "8080:8080"
+
+  standard_delivery_service:
+    build: ./standard_delivery_service
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+
+  express_delivery_service:
+    build: ./express_delivery_service
+    depends_on:
+      - kafka
+    ports:
+      - "8082:8082"
+
+  international_delivery_service:
+    build: ./international_delivery_service
+    depends_on:
+      - kafka
+    ports:
+      - "8083:8083"
+
   kafka:
-    image: wurstmeister/kafka
+    image: wurstmeister/kafka:latest
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: localhost
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    depends_on:
-      - zookeeper
-  mongodb:
-    image: mongo
-    ports:
-      - "27017:27017"
-  logistics-service:
-    build: ./logistics-service
-    ports:
-      - "8080:8080"
-    depends_on:
-      - kafka
-      - mongodb
-  standard-delivery-service:
-    build: ./standard-delivery-service
-    depends_on:
-      - kafka
-      - mongodb
-  express-delivery-service:
-    build: ./express-delivery-service
-    depends_on:
-      - kafka
-      - mongodb
-  international-delivery-service:
-    build: ./international-delivery-service
-    depends_on:
-      - kafka
-      - mongodb
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9092
